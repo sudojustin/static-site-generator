@@ -5,11 +5,6 @@ from leafnode import LeafNode
 class TestLeafNode(unittest.TestCase):
     def test_tag_no_children(self):
         node = LeafNode('p', 'this is a paragraph node')
-        # print('---------node test_-------------')
-        # print(node)
-        # print(node.tag)
-        # print(node.value)
-        # print('---------node test_-------------')
         self.assertEqual(node.tag, 'p')
         self.assertIsNone(node.children)
 
