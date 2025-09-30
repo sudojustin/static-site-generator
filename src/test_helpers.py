@@ -1,6 +1,6 @@
 import unittest
 from textnode import TextNode, TextType
-from helpers import (extract_markdown_images, extract_markdown_links, split_nodes_delimiter, split_nodes_image, split_nodes_link, 
+from helpers import (extract_markdown_images, extract_markdown_links, markdown_to_blocks, split_nodes_delimiter, split_nodes_image, split_nodes_link, 
     text_node_to_html_node, split_nodes_image, split_nodes_link, text_to_textnodes)
 
 
@@ -408,6 +408,64 @@ class TestTextToTextNodes(unittest.TestCase):
         nodes = text_to_textnodes(text)
         self.assertEqual(len(nodes), 1)
         self.assertEqual(nodes[0].text_type, TextType.TEXT)
+
+
+class TestMarkdownToBlocks(unittest.TestCase):
+
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                'This is **bolded** paragraph',
+                'This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line',
+                '- This is a list\n- with items',
+            ],
+        )
+
+    def test_single_block(self):
+        md = 'Just a single paragraph with no blank lines'
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ['Just a single paragraph with no blank lines'])
+
+    def test_leading_and_trailing_newlines(self):
+        md = '\n\nLeading and trailing newlines\n\n'
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ['Leading and trailing newlines'])
+
+    def test_multiple_consecutive_blank_lines(self):
+        md = 'Paragraph 1\n\n\n\nParagraph 2'
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ['Paragraph 1', 'Paragraph 2'])
+
+    def test_list_block_only(self):
+        md = '- Item 1\n- Item 2\n- Item 3'
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ['- Item 1\n- Item 2\n- Item 3'])
+
+    def test_empty_string(self):
+        md = ''
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [])
+
+    def test_only_blank_lines(self):
+        md = '\n\n\n\n'
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, [])
+
+    def test_mixed_blank_lines_and_text(self):
+        md = '\n\nText 1\n\n\nText 2\n\n\n\nText 3\n\n'
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(blocks, ['Text 1', 'Text 2', 'Text 3'])
 
 
 if __name__ == '__main__':
