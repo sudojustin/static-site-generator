@@ -1,7 +1,7 @@
 import os
 import shutil
 
-def copy_static(src='static', dst='public'):
+def copy_static(src='static', dst='docs'):
     if os.path.exists(dst):
         shutil.rmtree(dst)
 
