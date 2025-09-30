@@ -1,6 +1,7 @@
 import unittest
 from textnode import TextNode, TextType
-from helpers import (extract_markdown_images, extract_markdown_links, markdown_to_blocks, split_nodes_delimiter, split_nodes_image, split_nodes_link, 
+from helpers import (BlockType, block_to_block_type, extract_markdown_images, extract_markdown_links, markdown_to_blocks, 
+    split_nodes_delimiter, split_nodes_image, split_nodes_link, 
     text_node_to_html_node, split_nodes_image, split_nodes_link, text_to_textnodes)
 
 
@@ -466,6 +467,43 @@ This is the same paragraph on a new line
         md = '\n\nText 1\n\n\nText 2\n\n\n\nText 3\n\n'
         blocks = markdown_to_blocks(md)
         self.assertEqual(blocks, ['Text 1', 'Text 2', 'Text 3'])
+
+
+class TestBlockToBlockType(unittest.TestCase):
+
+    def test_paragraph_block(self):
+        block = 'This is a normal paragraph.'
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+
+    def test_heading_block(self):
+        block = '# This is a heading'
+        self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+        block = '### Subheading'
+        self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+
+    def test_code_block(self):
+        block = '```\nprint("Hello")\n```'
+        self.assertEqual(block_to_block_type(block), BlockType.CODE)
+
+    def test_quote_block(self):
+        block = '> This is a quote\n> continuing the quote'
+        self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
+
+    def test_unordered_list_block(self):
+        block = '- Item 1\n- Item 2\n- Item 3'
+        self.assertEqual(block_to_block_type(block), BlockType.UNORDERED_LIST)
+
+    def test_ordered_list_block(self):
+        block = '1. First\n2. Second\n3. Third'
+        self.assertEqual(block_to_block_type(block), BlockType.ORDERED_LIST)
+
+    def test_ordered_list_non_sequential(self):
+        block = '1. First\n3. Second\n4. Third'
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+
+    def test_empty_block(self):
+        block = ''
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
 
 if __name__ == '__main__':
